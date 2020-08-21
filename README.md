@@ -1,3 +1,58 @@
+# 動作確認結果
+
+2クラスのセグメンテーション (病気かそれ以外か). 多クラスの場合は追加実装が必要.
+
+## 動作環境
+
+- ubuntu 18.04, cuda 9.2, cudnn 7
+  - Dockerfile
+- pytorch 1.2.0+cu92
+- torchvision 0.4.0+cu92
+  - `pip install torch==1.2.0+cu92 torchvision==0.4.0+cu92 -f https://download.pytorch.org/whl/torch_stable.html`
+
+## データセット
+
+- Skin cancer : https://challenge.isic-archive.com/data#2017
+
+```
+# ディレクトリ
+SegAN
+├── train.py
+├── ISIC-2017_Test_v2_Data
+├── ISIC-2017_Test_v2_Part1_GroundTruth
+├── ISIC-2017_Training_Data
+└── ISIC-2017_Training_Part1_GroundTruth
+```
+
+## Training
+
+- オリジナルの`train.py`の修正箇所
+  - `124, 130, 146, 151 行目` : `squeeze関数`で`1の次元`を削除
+  - `161, 162, 163 行目` : `.item()`に変更
+
+- 実行 : `CUDA_VISIBLE_DEVICES=1 python train.py --cuda --batchSize 34`
+
+- 実行ログ : `train.log`
+
+## Result
+
+ベストスコアは150epoch, 計算時間は4時間.
+
+- `outputs_/input_val_epoch_150.png`
+
+  ![input](outputs_/input_val_epoch_150.png)
+
+- `outputs_/label_val_epoch_150.png`
+
+  ![input](outputs_/label_val_epoch_150.png)
+
+- `outputs_/result_val_epoch_150.png`
+
+  ![input](outputs_/result_val_epoch_150.png)
+
+---
+---
+
 # SegAN: Semantic Segmentation with Adversarial Learning
 
 Pytorch implementation for the basic ideas from the paper [SegAN: Adversarial Network with Multi-scale L1 Loss for Medical Image Segmentation](https://arxiv.org/pdf/1706.01805.pdf) by Yuan Xue, Tao Xu, Han Zhang, L. Rodney Long, Xiaolei Huang.
@@ -22,7 +77,7 @@ python 2.7
 **Training**
 - The steps to train a SegAN model on the ISIC skin lesion segmentation dataset.
   - Run with: CUDA_VISIBLE_DEVICES=X(your GPU id) python train.py --cuda.
-  	You can change training hyperparameters as you wish, the default output folder is ~/outputs. 
+  	You can change training hyperparameters as you wish, the default output folder is ~/outputs.
   	For now we only support training with one GPU.
   	The training images will be save in the ~/outputs folder.
   - The training code also includes the validation part, we will report validation results every 10 epochs, validation images will also be saved in the ~/outputs folder.

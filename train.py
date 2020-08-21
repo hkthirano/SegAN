@@ -121,13 +121,15 @@ for epoch in range(opt.niter):
         input_mask = input.clone()
         #detach G from the network
         for d in range(3):
-            output_masked[:,d,:,:] = input_mask[:,d,:,:].unsqueeze(1) * output
+            # output_masked[:,d,:,:] = input_mask[:,d,:,:].unsqueeze(1) * output
+            output_masked[:,d,:,:] = input_mask[:,d,:,:].squeeze() * output.squeeze()
         if cuda:
             output_masked = output_masked.cuda()
         result = NetC(output_masked)
         target_masked = input.clone()
         for d in range(3):
-            target_masked[:,d,:,:] = input_mask[:,d,:,:].unsqueeze(1) * target
+            # target_masked[:,d,:,:] = input_mask[:,d,:,:].unsqueeze(1) * target
+            target_masked[:,d,:,:] = input_mask[:,d,:,:].squeeze() * target.squeeze()
         if cuda:
             target_masked = target_masked.cuda()
         target_D = NetC(target_masked)
@@ -143,12 +145,14 @@ for epoch in range(opt.niter):
         output = F.sigmoid(output)
 
         for d in range(3):
-            output_masked[:,d,:,:] = input_mask[:,d,:,:].unsqueeze(1) * output
+            # output_masked[:,d,:,:] = input_mask[:,d,:,:].unsqueeze(1) * output
+            output_masked[:,d,:,:] = input_mask[:,d,:,:].squeeze() * output.squeeze()
         if cuda:
             output_masked = output_masked.cuda()
         result = NetC(output_masked)
         for d in range(3):
-            target_masked[:,d,:,:] = input_mask[:,d,:,:].unsqueeze(1) * target
+            # target_masked[:,d,:,:] = input_mask[:,d,:,:].unsqueeze(1) * target
+            target_masked[:,d,:,:] = input_mask[:,d,:,:].squeeze() * target.squeeze()
         if cuda:
             target_masked = target_masked.cuda()
         target_G = NetC(target_masked)
@@ -158,9 +162,12 @@ for epoch in range(opt.niter):
         loss_G_joint.backward()
         optimizerG.step()
 
-    print("===> Epoch[{}]({}/{}): Batch Dice: {:.4f}".format(epoch, i, len(dataloader), 1 - loss_dice.data[0]))
-    print("===> Epoch[{}]({}/{}): G_Loss: {:.4f}".format(epoch, i, len(dataloader), loss_G.data[0]))
-    print("===> Epoch[{}]({}/{}): D_Loss: {:.4f}".format(epoch, i, len(dataloader), loss_D.data[0]))
+    # print("===> Epoch[{}]({}/{}): Batch Dice: {:.4f}".format(epoch, i, len(dataloader), 1 - loss_dice.data[0]))
+    # print("===> Epoch[{}]({}/{}): G_Loss: {:.4f}".format(epoch, i, len(dataloader), loss_G.data[0]))
+    # print("===> Epoch[{}]({}/{}): D_Loss: {:.4f}".format(epoch, i, len(dataloader), loss_D.data[0]))
+    print("===> Epoch[{}]({}/{}): Batch Dice: {:.4f}".format(epoch, i, len(dataloader), 1 - loss_dice.item()))
+    print("===> Epoch[{}]({}/{}): G_Loss: {:.4f}".format(epoch, i, len(dataloader), loss_G.item()))
+    print("===> Epoch[{}]({}/{}): D_Loss: {:.4f}".format(epoch, i, len(dataloader), loss_D.item()))
     vutils.save_image(data[0],
             '%s/input.png' % opt.outpath,
             normalize=True)
@@ -200,16 +207,16 @@ for epoch in range(opt.niter):
         if mIoU > max_iou:
             max_iou = mIoU
             torch.save(NetS.state_dict(), '%s/NetS_epoch_%d.pth' % (opt.outpath, epoch))
-        vutils.save_image(data[0],
-                '%s/input_val.png' % opt.outpath,
-                normalize=True)
-        vutils.save_image(data[1],
-                '%s/label_val.png' % opt.outpath,
-                normalize=True)
-        pred = pred.type(torch.FloatTensor)
-        vutils.save_image(pred.data,
-                '%s/result_val.png' % opt.outpath,
-                normalize=True)
+            vutils.save_image(data[0],
+                    '%s/input_val_epoch_%d.png' % (opt.outpath, epoch),
+                    normalize=True)
+            vutils.save_image(data[1],
+                    '%s/label_val_epoch_%d.png' % (opt.outpath, epoch),
+                    normalize=True)
+            pred = pred.type(torch.FloatTensor)
+            vutils.save_image(pred.data,
+                    '%s/result_val_epoch_%d.png' % (opt.outpath, epoch),
+                    normalize=True)
     if epoch % 25 == 0:
         lr = lr*decay
         if lr <= 0.00000001:

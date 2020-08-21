@@ -6,8 +6,7 @@
 
 - ubuntu 18.04, cuda 9.2, cudnn 7
   - Dockerfile
-- pytorch 1.2.0+cu92
-- torchvision 0.4.0+cu92
+- pytorch 1.2.0+cu92, torchvision 0.4.0+cu92
   - `pip install torch==1.2.0+cu92 torchvision==0.4.0+cu92 -f https://download.pytorch.org/whl/torch_stable.html`
 
 ## データセット
